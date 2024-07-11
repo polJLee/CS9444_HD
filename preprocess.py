@@ -1,13 +1,9 @@
 """ Copyright 2017, Dimitrios Effrosynidis, All rights reserved. """
 
 import re
-from functools import partial
-from collections import Counter
-import nltk
 from nltk.corpus import wordnet
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.stem.porter import PorterStemmer
+import inflect
+
 
 def replace_URL(text):
     # Replacing urls with the string "url"
@@ -25,12 +21,27 @@ def remove_hashtags(text):
     text = re.sub(r'#([^\s]+)', r'\1', text)
     return text
 
-def remove_numbers(text):
-    # Removes integers
-    # Would be best if integer can be transformed in to strings. For example, 1 -> One
+def replace_numbers(text):
+    # Replaces integers to string text
+    # For example, 1 -> One
     # This would allow for keeping relevant information and avoiding removing critical information
+    
+    def convert_numbers_to_words(match):
+        number = match.group(0)
+        p = inflect.engine()
+        return p.number_to_words(number)
+    
+    text_with_words = re.sub(r'\b\d+\b', convert_numbers_to_words, text)
+
+    # Below complete
+    # text = ''.join([i for i in text if not i.isdigit()])         
+    return text_with_words
+
+# completely removes text
+def remove_numbers(text):
     text = ''.join([i for i in text if not i.isdigit()])         
     return text
+
 
 def replaceMultiExclamationMark(text):
     # Tag multi-exclamation marks
